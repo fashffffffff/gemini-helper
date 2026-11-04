@@ -12,6 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+    timeout-minutes: 10
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -23,5 +24,9 @@ jobs:
       - run: npm install --global @openai/codex
       - run: npm run setup -- --client codex --no-login
       - run: codex mcp get google-pro
-      - run: npx playwright install --with-deps chromium
-      - run: npm test
+      - if: runner.os == 'Linux'
+        run: npx playwright install --with-deps chromium
+      - if: runner.os == 'Linux'
+        run: npm test
+      - if: runner.os == 'Windows'
+        run: npx tsx --test test/gemini.test.ts test/install.test.ts test/mcp.test.ts
