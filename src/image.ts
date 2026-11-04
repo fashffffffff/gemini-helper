@@ -22,7 +22,7 @@ async function readGeneratedImage(directory: string) {
     if (!entry.isFile() || !/\.(png|jpe?g|webp)$/i.test(entry.name)) continue;
     const path = join(root, entry.name);
     if (dirname(await realpath(path)) !== root) continue;
-    const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+    const file = await open(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
     try {
       const stat = await file.stat();
       if (!stat.isFile() || stat.size > limit) continue;

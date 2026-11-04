@@ -10,7 +10,7 @@
     "build": "tsc",
     "test": "tsx --test test/*.test.ts",
     "start": "node dist/server.js",
-    "setup": "node dist/cli.js setup",
+    "setup": "npm run build && node dist/setup.js",
     "doctor": "node dist/cli.js doctor"
   },
   "dependencies": {

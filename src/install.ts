@@ -35,23 +35,32 @@ export async function installJsonConfig(file: string) {
   return { file, backup };
 }
 
+export function claudeDesktopConfig() {
+  const folder = process.platform === 'darwin' ? join(homedir(), 'Library/Application Support/Claude') : join(process.env.APPDATA ?? join(homedir(), '.config'), 'Claude');
+  return join(folder, 'claude_desktop_config.json');
+}
+
+export function runClientCommand(command: string, args: string[]) {
+  if (process.platform !== 'win32') return runProcess(command, args, { timeoutMs: 15000 });
+  const quote = (s: string) => "'" + s.replaceAll("'", "''") + "'";
+  const code = '& ' + [command, ...args].map(quote).join(' ') + '; if (-not $?) { exit 1 }; exit $LASTEXITCODE';
+  return runProcess('powershell.exe', ['-NoProfile', '-EncodedCommand', Buffer.from(code, 'utf16le').toString('base64')], { timeoutMs: 15000 });
+}
+
 export async function installClient(client: string) {
   const config = connectionConfig();
   if (client === 'claude-desktop') {
-    const folder = process.platform === 'darwin' ? join(homedir(), 'Library/Application Support/Claude') : join(process.env.APPDATA ?? join(homedir(), '.config'), 'Claude');
-    return installJsonConfig(join(folder, 'claude_desktop_config.json'));
+    return installJsonConfig(claudeDesktopConfig());
   }
   if (client === 'claude-code') {
-    const result = await runProcess('claude', ['mcp', 'add', '--transport', 'stdio', '--scope', 'user', 'google-pro', '--', config.command, ...config.args], { timeoutMs: 15000 });
-    if (result.code !== 0) throw new Error('Claude Code CLI could not register the MCP. See connections/claude-code.txt.');
-    return { installed: client };
+    return installJsonConfig(join(homedir(), '.claude.json'));
   }
   if (client === 'codex') {
-    const file = join(homedir(), '.codex/config.toml');
+    const file = join(process.env.CODEX_HOME ?? join(homedir(), '.codex'), 'config.toml');
     let backup: string | undefined;
     try { backup = `${file}.backup-google-pro-${Date.now()}`; await copyFile(file, backup); await chmod(backup, 0o600); }
     catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; backup = undefined; }
-    const result = await runProcess('codex', ['mcp', 'add', 'google-pro', '--', config.command, ...config.args], { timeoutMs: 15000 });
+    const result = await runClientCommand('codex', ['mcp', 'add', 'google-pro', '--', config.command, ...config.args]);
     if (result.code !== 0) throw new Error('Codex CLI could not register the MCP. See connections/codex.toml.');
     await writeFile(file, setCodexTimeout(await readFile(file, 'utf8')), { mode: 0o600 });
     return { installed: client, backup };

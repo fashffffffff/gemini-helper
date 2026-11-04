@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { installJsonConfig, connectionConfig, setCodexTimeout } from '../src/install.js';
 
 test('client installation preserves unrelated servers and makes a recoverable backup', async () => {
@@ -17,7 +17,7 @@ test('client installation preserves unrelated servers and makes a recoverable ba
     assert.equal(after.mcpServers.existing.command, 'keep-me');
     assert.equal(after.mcpServers['google-pro'].command, process.execPath);
     assert.equal(await readFile(result.backup!, 'utf8'), before);
-    assert.equal(connectionConfig().args[0].endsWith('/dist/server.js'), true);
+    assert.equal(connectionConfig().args[0].endsWith(sep + join('dist', 'server.js')), true);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
 

@@ -18,8 +18,9 @@ export function accountPaths(account: string, root = STATE) {
 // endpoints or NODE_OPTIONS from the parent agent can reach the official CLI.
 export function subscriptionEnv(account: string, root = STATE, parent = process.env): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {};
-  for (const key of ['PATH', 'HOME', 'USER', 'LOGNAME', 'SHELL', 'TMPDIR', 'TEMP', 'TMP', 'LANG', 'LC_ALL', 'TERM', 'COLORTERM', 'DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS', 'SYSTEMROOT', 'WINDIR']) {
-    if (parent[key] !== undefined) env[key] = parent[key];
+  for (const key of ['PATH', 'HOME', 'USER', 'LOGNAME', 'SHELL', 'TMPDIR', 'TEMP', 'TMP', 'LANG', 'LC_ALL', 'TERM', 'COLORTERM', 'DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS', 'SystemRoot', 'SYSTEMROOT', 'WINDIR', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'HOMEDRIVE', 'HOMEPATH', 'COMSPEC', 'XDG_RUNTIME_DIR', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME']) {
+    const actual = process.platform === 'win32' ? Object.keys(parent).find(name => name.toUpperCase() === key.toUpperCase()) : key;
+    if (actual && parent[actual] !== undefined) env[actual] = parent[actual];
   }
   env.GEMINI_CLI_HOME = accountPaths(account, root).cliHome;
   env.GEMINI_CLI_NO_RELAUNCH = 'true';

@@ -2,23 +2,33 @@
 
 Локальный MCP для Codex и Claude. Помощник может поручить Gemini поиск источников, подготовку текста, небольшие правки файлов и генерацию изображений. Запросы идут через официальный Antigravity CLI под твоим аккаунтом Google.
 
-## Скачать и установить на macOS
+## Установка из терминала
 
-Нужны Node.js 22 или новее и установленный Codex, Claude Code или Claude Desktop.
-
-1. [Скачай ZIP проекта](https://github.com/fashffffffff/gemini-helper/archive/refs/heads/main.zip) и распакуй его в постоянную папку.
-2. Открой `setup.command` двойным кликом. Если macOS не запускает скрипт из Finder, открой терминал в распакованной папке и выполни `zsh setup.command`.
-3. Войди в свой аккаунт Google AI Pro в окне авторизации Antigravity.
-4. Перезапусти Codex или Claude, чтобы загрузился MCP `google-pro`.
-
-Скрипт установит зависимости, скачает Antigravity CLI с сайта Google и подключит MCP к найденным клиентам. Codex и Claude Code также получат скилл `gemini-helper`. Claude Desktop получает правила делегирования из самого MCP.
-
-Вместо ZIP можно клонировать репозиторий:
+На Windows открой PowerShell. На Linux или macOS открой обычный терминал.
+Нужны Git, Node.js 22+ и установленный Codex, Claude Code или Claude Desktop.
 
 ```sh
 git clone https://github.com/fashffffffff/gemini-helper.git
 cd gemini-helper
-zsh setup.command
+npm ci
+npm run setup
+```
+
+Установщик скачает официальный Antigravity CLI для твоей ОС, подключит MCP
+`google-pro` к найденным клиентам и запустит вход в Google. Выбери свой
+аккаунт Google AI Pro, затем перезапусти Codex или Claude.
+
+Чтобы подключить один клиент, запусти `npm run setup -- --client codex`,
+`npm run setup -- --client claude-code` или `npm run setup -- --client claude-desktop`.
+Если Codex или Claude Code не определился, проверь, что его CLI доступен в PATH.
+Установка Codex и Claude Code также добавляет скилл `gemini-helper`.
+
+Обновление после установки:
+
+```sh
+git pull --ff-only
+npm ci
+npm run setup -- --no-login
 ```
 
 ## Примеры
@@ -34,7 +44,7 @@ zsh setup.command
 Если Antigravity просит войти снова, запусти из папки проекта:
 
 ```sh
-./.agy-bin/agy acp --login
+npm run setup
 ```
 
 Проблемы с возрастом, регионом или доступом к подписке разбираются в [справке Antigravity](https://antigravity.google/docs/faq).
@@ -48,4 +58,4 @@ npx playwright install chromium
 npm test
 ```
 
-Поддержка Flow сохранена отдельно в `google_flow`. Для неё нужен Chromium и доступ к Flow на аккаунте. Обычные задачи и генерация через `google_image` не требуют установки Chromium.
+Устаревший браузерный режим Flow доступен отдельно на Linux и macOS. Для него нужен Chromium и доступ к Flow на аккаунте. Обычные задачи и генерация через `google_image` не требуют установки Chromium.

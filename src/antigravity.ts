@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { PROJECT, subscriptionEnv } from './config.js';
 import { runProcess } from './process.js';
 
-export const AGY = join(PROJECT, '.agy-bin/agy');
+export const AGY = join(PROJECT, '.agy-bin', process.platform === 'win32' ? 'agy.exe' : 'agy');
 
 interface FileInput { path: string; content: string }
 

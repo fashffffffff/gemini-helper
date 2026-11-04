@@ -28,6 +28,7 @@ function request(request: BrowserRequest): Promise<any> {
 }
 
 export async function browserCall(input: BrowserRequest) {
+  if (process.platform === 'win32') throw new Error('Legacy Flow browser integration is unavailable on Windows. Use google_image for images.');
   try { return await request(input); } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
     if (!['ENOENT', 'ECONNREFUSED'].includes(code ?? '')) throw error;
